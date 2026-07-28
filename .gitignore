@@ -1,0 +1,6 @@
+.env
+secrets.js
+data/
+server.log
+node_modules/
+.vercel

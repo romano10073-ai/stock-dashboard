@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>내 포트폴리오 대시보드</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="ticker-bar" aria-label="코스피 시리즈 지수 티커">
+  <div class="ticker-track" id="tickerTrack">
+    <span class="ticker-empty">KOSPI 시리즈 지수를 불러오는 중…</span>
+  </div>
+</div>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <h1>내 포트폴리오</h1>
+      <p class="subtitle">코스피·코스닥 지수와 보유 종목 현황을 한눈에</p>
+    </div>
+    <div class="topbar-actions">
+      <div class="auth-status" id="authStatus"></div>
+      <button class="btn btn-primary" id="authGateBtn" type="button" hidden>로그인 / 회원가입</button>
+      <span class="updated-at" id="updatedAt">업데이트 확인 중…</span>
+      <button class="btn btn-refresh" id="refreshBtn" type="button">
+        <span class="icon" data-icon="refresh"></span>
+        새로고침
+      </button>
+    </div>
+  </header>
+
+  <section class="indices" id="indices" aria-label="지수 및 시장지표"></section>
+
+  <main class="main-grid" id="mainGrid">
+    <section class="portfolio" aria-label="보유 종목">
+      <div class="portfolio-toolbar">
+        <nav class="filter-bar" id="filterBar"></nav>
+        <button class="btn btn-add" id="addStockBtn" type="button">
+          <span class="icon" data-icon="plus"></span>
+          종목 추가
+        </button>
+      </div>
+      <div class="portfolio-groups" id="portfolioGroups"></div>
+    </section>
+
+    <aside class="news-panel" aria-label="관련 뉴스">
+      <div class="ai-highlight" aria-label="AI가 분석한 오늘의 핵심뉴스">
+        <div class="ai-highlight-head">
+          <span class="ai-badge">AI가 분석한 오늘의 핵심뉴스</span>
+          <button type="button" class="btn btn-xs btn-primary" id="aiSummaryBtn">AI 요약</button>
+        </div>
+        <div class="ai-highlight-body" id="aiHighlightBody">
+          <p class="ai-placeholder">"AI 요약" 버튼을 누르면 오늘 수집된 뉴스 중 가장 중요한 소식을 AI가 골라 한 줄로 요약해드려요.</p>
+        </div>
+      </div>
+
+      <div class="news-header">
+        <h2 id="newsTitle">전체 보유종목 뉴스</h2>
+        <span class="news-updated" id="newsUpdated"></span>
+      </div>
+      <ul class="news-list" id="newsList">
+        <li class="news-empty">뉴스를 불러오는 중입니다…</li>
+      </ul>
+    </aside>
+  </main>
+</div>
+
+<div class="modal-overlay" id="authModalOverlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+    <div class="modal-header">
+      <h2 id="authModalTitle">로그인</h2>
+      <button class="modal-close" id="authModalClose" type="button" aria-label="닫기">
+        <span class="icon" data-icon="close"></span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab" data-tab="login" aria-pressed="true">로그인</button>
+        <button type="button" class="auth-tab" data-tab="signup" aria-pressed="false">회원가입</button>
+      </div>
+
+      <form class="auth-form" id="loginForm">
+        <label class="field-label" for="loginEmployeeId">사번</label>
+        <input class="text-input" id="loginEmployeeId" type="text" autocomplete="off" required />
+        <label class="field-label" for="loginName">이름</label>
+        <input class="text-input" id="loginName" type="text" autocomplete="off" required />
+        <p class="auth-error" id="loginError" hidden></p>
+        <button type="submit" class="btn btn-primary auth-submit">로그인</button>
+      </form>
+
+      <form class="auth-form" id="signupForm" hidden>
+        <label class="field-label" for="signupEmployeeId">사번</label>
+        <input class="text-input" id="signupEmployeeId" type="text" autocomplete="off" required />
+        <label class="field-label" for="signupName">이름</label>
+        <input class="text-input" id="signupName" type="text" autocomplete="off" required />
+        <label class="field-label" for="signupPhone">연락처</label>
+        <input class="text-input" id="signupPhone" type="tel" placeholder="010-0000-0000" autocomplete="off" required />
+        <p class="auth-error" id="signupError" hidden></p>
+        <p class="auth-success" id="signupSuccess" hidden></p>
+        <button type="submit" class="btn btn-primary auth-submit">회원가입</button>
+      </form>
+
+      <p class="auth-hint">사내 구성원 확인용으로 사번·이름을 사용합니다. 별도의 비밀번호는 없습니다.</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addModalOverlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="addModalTitle">
+    <div class="modal-header">
+      <h2 id="addModalTitle">종목 추가</h2>
+      <button class="modal-close" id="addModalClose" type="button" aria-label="닫기">
+        <span class="icon" data-icon="close"></span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <label class="field-label" for="stockSearchInput">종목명 검색</label>
+      <input class="text-input" id="stockSearchInput" type="text" placeholder="예: 삼성전자" autocomplete="off" />
+      <ul class="suggest-list" id="suggestList" hidden></ul>
+
+      <div class="selected-stock" id="selectedStock" hidden></div>
+
+      <label class="field-label" for="groupSelect">분류</label>
+      <select class="text-input" id="groupSelect"></select>
+
+      <div class="holding-inputs">
+        <div>
+          <label class="field-label" for="avgPriceInput">평균 매입가 (선택)</label>
+          <input class="text-input" id="avgPriceInput" type="number" min="0" placeholder="원" />
+        </div>
+        <div>
+          <label class="field-label" for="quantityInput">보유 수량 (선택)</label>
+          <input class="text-input" id="quantityInput" type="number" min="0" placeholder="주" />
+        </div>
+      </div>
+      <p class="field-hint">매입가·수량을 입력하면 종목 카드에 평가손익이 함께 표시됩니다. 나중에 카드에서 수정할 수 있어요.</p>
+
+      <p class="modal-error" id="modalError" hidden></p>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn" id="addModalCancel" type="button">취소</button>
+      <button class="btn btn-primary" id="addModalSubmit" type="button" disabled>추가하기</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
